@@ -1,0 +1,30 @@
+{
+  "name": "pse-stock-tracker",
+  "version": "1.0.0",
+  "description": "Personal PSE stock tracker: collector, daily OHLC, charts, 6 PM email report",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test",
+    "dry-run": "node scripts/dryRun.js",
+    "observe": "node scripts/observeAsOf.js",
+    "history": "node scripts/history.js",
+    "preview": "node scripts/preview.js",
+    "collect-once": "node scripts/collectOnce.js",
+    "backfill": "node scripts/backfill.js",
+    "check-firebase": "node scripts/checkFirebase.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "firebase-admin": "^12.7.0",
+    "echarts": "^5.5.1",
+    "@resvg/resvg-js": "^2.6.2"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}
