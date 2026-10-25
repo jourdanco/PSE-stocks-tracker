@@ -50,3 +50,10 @@ The 10-minute tick already runs the report when it is due, so job 2 is only a se
 
 ## Can 6:00 PM be guaranteed?
 No. On free hosting the service may be asleep or restarting. Design: the report is *due* from 6:00 PM for 3 hours; whichever trigger reaches the app first sends it once (database lock). Expect 6:00-6:05 PM normally. A paid always-on instance narrows this but still cannot promise to-the-second delivery (email delivery itself has delays).
+
+## Force-resend the report
+Normal triggers send at most one report per date. To deliberately resend (live mode only; test mode never sends):
+```
+curl.exe -H "x-cron-key: YOUR_SECRET" "https://YOUR-APP.onrender.com/api/report?force=1"
+```
+It sends immediately, even if today's report was already sent. It still refuses while another send is running (answer `in_progress`). Never put `force=1` in a cron job. `emailReports/<date>.sendCount` shows how many times it was sent.

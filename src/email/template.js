@@ -69,7 +69,7 @@ function buildEmail({ date, psei, stocks, notes = [] }) {
   ${pseiBlock(psei)}
   ${stocks.map(stockBlock).join('')}
   <div style="font-size:11px;color:#6b7280;margin-top:16px;line-height:1.5;">
-   
+    
   </div>
 </div></body></html>`;
 

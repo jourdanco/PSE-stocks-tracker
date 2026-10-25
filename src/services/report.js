@@ -14,12 +14,12 @@ const cidOf = (kind, ticker) => `${kind}-${ticker}`.replace(/[^a-zA-Z0-9_-]/g, '
  *  - REAL MODE: first claims the date in the database (so two triggers cannot both send),
  *    sends with retries, then records success. A failed chart never blocks the email.
  */
-async function runReport({ repo, config, deps, date, now = () => new Date(), log = console }) {
+async function runReport({ repo, config, deps, date, now = () => new Date(), log = console, force = false }) {
   const reportDate = date || manilaParts(now()).date;
   const testMode = config.email.testMode;
 
   if (!testMode) {
-    const claim = await repo.claimReport(reportDate, now().getTime(), { maxAttempts: config.report.maxAttempts });
+    const claim = await repo.claimReport(reportDate, now().getTime(), { maxAttempts: config.report.maxAttempts, force });
     if (!claim.ok) return { status: 'skipped', reason: claim.reason, date: reportDate };
   }
 
@@ -87,7 +87,7 @@ async function runReport({ repo, config, deps, date, now = () => new Date(), log
       subject: email.subject, html: email.html, text: email.text, attachments
     }), { log });
     await repo.markReportSent(reportDate, { messageId: sent.id, charts: attachments.length, notes });
-    return { status: 'sent', date: reportDate, messageId: sent.id, charts: attachments.length, notes };
+    return { status: 'sent', date: reportDate, messageId: sent.id, charts: attachments.length, notes, forced: force };
   } catch (e) {
     log.error('[report] failed:', e.message);
     if (!testMode) { try { await repo.markReportFailed(reportDate, e.message); } catch (e2) { log.error('[report] could not record failure:', e2.message); } }

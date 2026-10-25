@@ -47,7 +47,8 @@ function createMemoryRepo() {
       return r;
     },
     async markReportSent(date, info) {
-      s.reports.set(date, { ...(s.reports.get(date) || {}), ...clone(info), status: 'sent', sentAt: new Date().toISOString(), leaseUntilMs: 0 });
+      const prev = s.reports.get(date) || {};
+      s.reports.set(date, { ...prev, ...clone(info), status: 'sent', sentAt: new Date().toISOString(), leaseUntilMs: 0, sendCount: (prev.sendCount || 0) + 1 });
     },
     async markReportFailed(date, error) {
       s.reports.set(date, { ...(s.reports.get(date) || {}), status: 'failed', lastError: String(error).slice(0, 500), leaseUntilMs: 0 });

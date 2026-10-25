@@ -149,3 +149,22 @@ test('email no longer contains Previous close, Daily record or Market-wide', () 
   assert.doesNotMatch(e.html, /Previous close|Daily record|Market-wide/);
   assert.match(e.html, /Source timestamp/); assert.match(e.html, /Volume/);
 });
+
+test('force=1 resends a report that was already sent; normal calls still skip', async () => {
+  const repo = createMemoryRepo(); await seed(repo);
+  let sends = 0;
+  const deps = mkDeps({ sendEmail: async () => { sends++; return { id: 'm' + sends }; } });
+  const run = (force) => runReport({ repo, config: mkConfig(), deps, date: '2026-10-22', now: NOW, log: silent, force });
+  assert.strictEqual((await run(false)).status, 'sent');
+  assert.strictEqual((await run(false)).reason, 'already_sent');
+  const f = await run(true);
+  assert.strictEqual(f.status, 'sent'); assert.strictEqual(f.forced, true);
+  assert.strictEqual(sends, 2);
+  assert.strictEqual((await repo.getReport('2026-10-22')).sendCount, 2);
+  assert.strictEqual((await run(false)).reason, 'already_sent'); // back to normal protection
+});
+test('force never overrides a send that is in progress right now', () => {
+  assert.strictEqual(evaluateClaim({ status: 'sending', leaseUntilMs: 99 }, 5, { force: true }).reason, 'in_progress');
+  assert.strictEqual(evaluateClaim({ status: 'sent' }, 5, { force: true }).ok, true);
+  assert.strictEqual(evaluateClaim({ status: 'failed', attempts: 9 }, 5, { force: true, maxAttempts: 5 }).ok, true);
+});

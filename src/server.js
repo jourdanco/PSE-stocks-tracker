@@ -28,10 +28,12 @@ app.get('/health', (req, res) => res.json({ ok: true, uptimeSec: Math.round((Dat
 // cron-job.org calls this every ~10 minutes. It wakes the service and runs whatever is due.
 app.get('/api/tick', auth, wrap(async (req, res) => res.json(await scheduler.tick({ source: 'http' }))));
 
-// Backup trigger for the report (idempotent). In test mode it only builds a preview.
+// Report trigger (idempotent). ?force=1 resends even if already sent. In test mode it only builds a preview.
 app.get('/api/report', auth, wrap(async (req, res) => {
   const date = /^\d{4}-\d{2}-\d{2}$/.test(req.query.date || '') ? req.query.date : manilaParts(new Date()).date;
-  res.json(await runReport({ repo, config, deps, date }));
+  const force = ['1', 'true'].includes(String(req.query.force || '').toLowerCase());
+  if (force) console.warn(`[report] FORCE send requested for ${date}`);
+  res.json(await runReport({ repo, config, deps, date, force }));
 }));
 
 app.get('/api/ohlc', auth, wrap(async (req, res) => res.json(await deps.refreshHistory())));

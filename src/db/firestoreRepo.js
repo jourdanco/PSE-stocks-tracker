@@ -72,7 +72,7 @@ function createFirestoreRepo(cfg) {
       });
     },
     async markReportSent(date, info) {
-      await db.collection('emailReports').doc(date).set({ ...info, status: 'sent', sentAt: new Date().toISOString(), leaseUntilMs: 0 }, { merge: true });
+      await db.collection('emailReports').doc(date).set({ ...info, status: 'sent', sentAt: new Date().toISOString(), leaseUntilMs: 0, sendCount: admin.firestore.FieldValue.increment(1) }, { merge: true });
     },
     async markReportFailed(date, error) {
       await db.collection('emailReports').doc(date).set({ status: 'failed', lastError: String(error).slice(0, 500), leaseUntilMs: 0 }, { merge: true });
