@@ -27,14 +27,15 @@ const config = {
   },
 
   collectionIntervalSec: Math.max(30, num(env.COLLECTION_INTERVAL_SECONDS, 60)),
-  tradingWindow: { start: env.TRADING_WINDOW_START || '09:25', end: env.TRADING_WINDOW_END || '15:45' },
-  ohlcTime: env.OHLC_TIME || '16:00',
+  tradingWindow: { start: env.TRADING_WINDOW_START || '09:25', end: env.TRADING_WINDOW_END || '15:05' },
+  marketCloseTime: env.MARKET_CLOSE_TIME || '15:00', // PSE market close; today's official OHLC may only be finalized from here on
+  ohlcTime: env.OHLC_TIME || '15:10',
   historyRefreshDays: num(env.HISTORY_REFRESH_DAYS, 45),
   retentionDays: num(env.RETENTION_DAYS, 400),
   pseiEveryMinutes: num(env.PSEI_EVERY_MINUTES, 10),
 
   report: {
-    time: env.REPORT_TIME || '18:00',
+    time: env.REPORT_TIME || '15:00',
     catchupMinutes: num(env.REPORT_CATCHUP_WINDOW_MINUTES, 180),
     maxAttempts: num(env.REPORT_MAX_ATTEMPTS, 5),
     chartPeriodDays: num(env.CHART_PERIOD_DAYS, 31)

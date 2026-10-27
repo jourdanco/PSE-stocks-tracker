@@ -16,7 +16,7 @@ function buildApp({ repo = createRepo(config), log = console } = {}) {
   const collector = createCollector({ repo, fetchStockPage, parseStockHtml, delayMs: config.pse.delayBetweenStocksMs, log });
   const deps = {
     collectPsei: () => collectPsei({ repo, fetchIndexPage, parseIndexHtml }),
-    refreshHistory: () => refreshHistory({ repo, watchlist: config.getWatchlist(), fetchHistory, days: config.historyRefreshDays, tradingEnd: config.tradingWindow.end, log }),
+    refreshHistory: () => refreshHistory({ repo, watchlist: config.getWatchlist(), fetchHistory, days: config.historyRefreshDays, tradingEnd: config.marketCloseTime, log }),
     renderPng,
     sendEmail
   };

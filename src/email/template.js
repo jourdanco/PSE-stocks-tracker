@@ -69,7 +69,8 @@ function buildEmail({ date, psei, stocks, notes = [] }) {
   ${pseiBlock(psei)}
   ${stocks.map(stockBlock).join('')}
   <div style="font-size:11px;color:#6b7280;margin-top:16px;line-height:1.5;">
-    
+    Source: PSE Edge (edge.pse.com.ph), used for personal purposes. Prices may be delayed. Intraday charts show price changes observed by this tracker and may miss trades between checks; they are not interpolated.
+    Candlesticks marked * are provisional until PSE's official history confirms them. This is not financial advice.
   </div>
 </div></body></html>`;
 

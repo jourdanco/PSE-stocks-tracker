@@ -3,7 +3,7 @@
 const { applyOfficial } = require('../logic/ohlc');
 const { manilaParts, addDays, hhmmToMinutes } = require('../time');
 
-async function refreshHistory({ repo, watchlist, fetchHistory, now = () => new Date(), days = 45, tradingEnd = '15:45', log = console }) {
+async function refreshHistory({ repo, watchlist, fetchHistory, now = () => new Date(), days = 45, tradingEnd = '15:00', log = console }) {
   const p = manilaParts(now());
   const today = p.date;
   const sessionOver = p.minutes >= hhmmToMinutes(tradingEnd);

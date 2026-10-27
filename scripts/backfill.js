@@ -8,7 +8,7 @@ const { fetchHistory } = require('../src/pse/history');
 const args = Object.fromEntries(process.argv.slice(2).map((a) => { const [k, v] = a.replace(/^--/, '').split('='); return [k, v === undefined ? true : v]; }));
 (async () => {
   const { repo } = buildApp();
-  const r = await refreshHistory({ repo, watchlist: config.getWatchlist(), fetchHistory, days: Number(args.days || 370), tradingEnd: config.tradingWindow.end });
+  const r = await refreshHistory({ repo, watchlist: config.getWatchlist(), fetchHistory, days: Number(args.days || 370), tradingEnd: config.marketCloseTime });
   console.log(JSON.stringify(r, null, 2));
   process.exit(0);
 })().catch((e) => { console.error('FAILED:', e.message); process.exit(1); });

@@ -4,6 +4,7 @@ const express = require('express');
 const { buildApp } = require('./app');
 const { runReport } = require('./services/report');
 const { manilaParts } = require('./time');
+const { briefTick, briefReport, briefOhlc, briefError } = require('./respond');
 
 const ctx = buildApp();
 const { config, repo, deps, scheduler } = ctx;
@@ -15,28 +16,36 @@ function safeEqual(a, b) {
   return x.length === y.length && crypto.timingSafeEqual(x, y);
 }
 function auth(req, res, next) {
-  if (!config.cronSecret) return res.status(503).json({ error: 'CRON_SECRET is not configured' });
+  if (!config.cronSecret) return res.status(503).json({ ok: false, error: 'no CRON_SECRET' });
   const key = req.get('x-cron-key') || req.query.key || '';
-  if (!safeEqual(key, config.cronSecret)) return res.status(401).json({ error: 'unauthorized' });
+  if (!safeEqual(key, config.cronSecret)) return res.status(401).json({ ok: false, error: 'unauthorized' });
   next();
 }
-const wrap = (fn) => (req, res) => fn(req, res).catch((e) => { console.error(e); res.status(500).json({ error: e.message }); });
+const verbose = (req) => req.query.verbose === '1';
+const wrap = (fn) => (req, res) => fn(req, res).catch((e) => { console.error(e); res.status(500).json(briefError(e)); });
 
 // Public, minimal: used by Render's health check. Reveals nothing sensitive.
 app.get('/health', (req, res) => res.json({ ok: true, uptimeSec: Math.round((Date.now() - startedAt) / 1000) }));
 
 // cron-job.org calls this every ~10 minutes. It wakes the service and runs whatever is due.
-app.get('/api/tick', auth, wrap(async (req, res) => res.json(await scheduler.tick({ source: 'http' }))));
+app.get('/api/tick', auth, wrap(async (req, res) => {
+  const r = await scheduler.tick({ source: 'http' });
+  res.json(verbose(req) ? r : briefTick(r));
+}));
 
 // Report trigger (idempotent). ?force=1 resends even if already sent. In test mode it only builds a preview.
 app.get('/api/report', auth, wrap(async (req, res) => {
   const date = /^\d{4}-\d{2}-\d{2}$/.test(req.query.date || '') ? req.query.date : manilaParts(new Date()).date;
   const force = ['1', 'true'].includes(String(req.query.force || '').toLowerCase());
   if (force) console.warn(`[report] FORCE send requested for ${date}`);
-  res.json(await runReport({ repo, config, deps, date, force }));
+  const r = await runReport({ repo, config, deps, date, force });
+  res.json(verbose(req) ? r : briefReport(r));
 }));
 
-app.get('/api/ohlc', auth, wrap(async (req, res) => res.json(await deps.refreshHistory())));
+app.get('/api/ohlc', auth, wrap(async (req, res) => {
+  const r = await deps.refreshHistory();
+  res.json(verbose(req) ? r : briefOhlc(r));
+}));
 
 app.get('/api/status', auth, wrap(async (req, res) => {
   const today = manilaParts(new Date()).date;

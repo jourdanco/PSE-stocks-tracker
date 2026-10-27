@@ -4,7 +4,7 @@ const { minutesOfDayManila, fmtClock, fmtManila } = require('../time');
 
 const FONT = 'DejaVu Sans';
 const GREEN = '#16a34a', RED = '#dc2626', GREY = '#6b7280', BLUE = '#2563eb';
-const LUNCH = [12 * 60, 13 * 60 + 30]; // PSE midday break (verify against PSE's official trading hours)
+const LUNCH = [12 * 60, 13 * 60]; // PSE market recess 12:00-1:00 PM (per PSE schedule: open 9:30, close 3:00, run-off 2:50)
 const px2 = (v) => Number(v).toFixed(2);
 
 function placeholder(title, message, height = 300) {

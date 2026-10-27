@@ -56,8 +56,8 @@ function createScheduler({ repo, config, deps, collector, now = () => new Date()
       } finally { busy.report = false; }
     }
 
-    // 4) Housekeeping: delete observations older than the retention period (once a day, evening)
-    if (p.minutes >= 19 * 60 && st.pruneDoneDate !== p.date) {
+    // 4) Housekeeping: delete observations older than the retention period (once a day, after close)
+    if (p.minutes >= hhmmToMinutes(config.ohlcTime) && st.pruneDoneDate !== p.date) {
       try {
         const n = await repo.pruneObservations(addDays(p.date, -config.retentionDays));
         await repo.setJobRun(`prune_${p.date}`, { date: p.date, deleted: n, ranAt: t.toISOString() });

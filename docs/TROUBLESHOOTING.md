@@ -36,3 +36,8 @@ FIREBASE_SERVICE_ACCOUNT_BASE64=PASTE_THE_LONG_TEXT_HERE
 Delete or empty the three `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` lines. On Render, add the same single variable instead. Never paste the key or this text into a chat or commit it.
 
 **Mac/Linux:** `base64 -w0 your-key.json` (Mac: `base64 -i your-key.json`).
+
+## cron-job.org shows failures / timeouts
+- cron-job.org gives each request 30 seconds on the free plan. A sleeping Render service takes about a minute to wake, so the first ping can fail. Use the separate warm-up job on `/health` (see DEPLOY.md section E).
+- Check that the job is still **enabled** in cron-job.org (they can be switched off after repeated failures; I have not verified their exact rule).
+- Responses are tiny by default. `?verbose=1` returns full details.

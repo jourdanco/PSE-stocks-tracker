@@ -63,3 +63,26 @@ test('test mode: preview is built once, nothing sent', async () => {
   const a = make('2026-10-22T10:00:00Z', true); await a.s.tick(); a.advance(60000); await a.s.tick();
   assert.strictEqual(a.calls.send, 0);
 });
+
+const { briefTick, briefReport, briefOhlc, briefError } = require('../src/respond');
+test('cron responses stay tiny even with huge inputs', () => {
+  const big = 'x'.repeat(5000);
+  const sizes = [briefTick({ actions: Array.from({ length: 50 }, () => ({ job: 'collector' })) }), briefReport({ status: 'failed', error: big }), briefOhlc({ ok: false, summary: [{ rows: 3 }] }), briefError(new Error(big))]
+    .map((o) => JSON.stringify(o).length);
+  sizes.forEach((n) => assert.ok(n < 200, `response too long: ${n}`));
+});
+test('3 PM report: sent once at 3:00 PM Manila on a weekday, with 15:00 config', async () => {
+  const c = cfg(false); c.report.time = '15:00'; c.ohlcTime = '15:10';
+  let t = new Date('2026-10-22T07:00:00Z').getTime(); // 3:00 PM Manila
+  const calls = { send: 0, prune: 0 };
+  const repo = createMemoryRepo(); const orig = repo.pruneObservations; repo.pruneObservations = async (d) => { calls.prune++; return orig(d); };
+  const deps = { collectPsei: async () => ({}), refreshHistory: async () => ({ ok: true }), renderPng: () => Buffer.from('x'), sendEmail: async () => { calls.send++; return { id: 'm' }; } };
+  const s = createScheduler({ repo, config: c, deps, collector: { collectOnce: async () => [] }, now: () => new Date(t), log: silent });
+  await s.tick(); assert.strictEqual(calls.send, 1);
+  t += 10 * 60000; await s.tick(); t += 10 * 60000; await s.tick();
+  assert.strictEqual(calls.send, 1); assert.strictEqual(calls.prune, 1); // prune ran once at/after 3:10 PM while awake
+});
+test('market recess is 12:00-1:00 PM: 11:55 -> 13:05 is only a 10-minute effective gap', () => {
+  const { gapMinutes } = require('../src/charts/options');
+  assert.strictEqual(gapMinutes(11 * 60 + 55, 13 * 60 + 5), 10);
+});
