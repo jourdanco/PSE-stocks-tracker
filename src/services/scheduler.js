@@ -51,6 +51,7 @@ function createScheduler({ repo, config, deps, collector, now = () => new Date()
       try {
         const r = await runReport({ repo, config, deps, date: p.date, now, log });
         out.actions.push({ job: 'report', status: r.status, reason: r.reason, error: r.error });
+        log.log(`[report] ${r.date} status=${r.status}${r.reason ? ' reason=' + r.reason : ''}${r.error ? ' error=' + String(r.error).slice(0, 80) : ''}${r.charts !== undefined ? ' charts=' + r.charts : ''}`);
         if (r.status === 'failed') st.reportRetryAt = t.getTime() + 2 * 60000;
         else st.reportDoneDate = p.date; // sent, preview, or skipped (already sent / max attempts)
       } finally { busy.report = false; }

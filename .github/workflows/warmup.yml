@@ -4,8 +4,8 @@
 name: warm-up
 on:
   schedule:
-    - cron: '37 0 * * 1-5'   # 8:37 AM Manila, Mon-Fri
-    - cron: '47 0 * * 1-5'   # 8:47 AM Manila, Mon-Fri
+    - cron: '0 1 * * 1-5'   # 9:00 AM Manila, Mon-Fri
+    - cron: '10 1 * * 1-5'   # 9:10 AM Manila, Mon-Fri
   workflow_dispatch: {}      # lets you run it by hand from the Actions tab to test
 jobs:
   ping:

@@ -58,7 +58,7 @@ app.get('/api/status', auth, wrap(async (req, res) => {
 }));
 
 app.listen(config.port, () => {
-  console.log(`PSE tracker listening on :${config.port} | db=${repo.kind} | emailTestMode=${config.email.testMode} | watchlist=${config.getWatchlist().map((s) => s.ticker).join(',')}`);
+  console.log(`PSE tracker listening on :${config.port} | db=${repo.kind} | emailTestMode=${config.email.testMode} | reportTime=${config.report.time} | watchlist=${config.getWatchlist().map((s) => s.ticker).join(',')}`);
   if (!config.cronSecret) console.warn('WARNING: CRON_SECRET is empty; /api endpoints will refuse all requests.');
   // In-app timer. It only works while the service is awake; cron-job.org pings cover wake-ups and catch-up.
   setInterval(() => scheduler.tick({ source: 'timer' }).catch((e) => console.error('tick failed:', e.message)), config.collectionIntervalSec * 1000);
