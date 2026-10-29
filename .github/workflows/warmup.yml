@@ -1,0 +1,16 @@
+# Wakes the sleeping Render service before market hours. curl waits up to 120 seconds,
+# so the ~1 minute wake-up does not time out (cron-job.org's free plan gives up at 30 seconds).
+# EDIT the URL below, then commit and push. GitHub schedules are UTC and best-effort (can run late).
+name: warm-up
+on:
+  schedule:
+    - cron: '37 0 * * 1-5'   # 8:37 AM Manila, Mon-Fri
+    - cron: '47 0 * * 1-5'   # 8:47 AM Manila, Mon-Fri
+  workflow_dispatch: {}      # lets you run it by hand from the Actions tab to test
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping /health
+        run: curl --silent --show-error --max-time 120 --retry 2 --retry-delay 20 --retry-all-errors "https://YOUR-APP.onrender.com/health"
