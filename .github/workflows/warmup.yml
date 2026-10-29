@@ -13,4 +13,4 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Ping /health
-        run: curl --silent --show-error --max-time 120 --retry 2 --retry-delay 20 --retry-all-errors "https://YOUR-APP.onrender.com/health"
+        run: curl --silent --show-error --max-time 120 --retry 2 --retry-delay 20 --retry-all-errors "https://pse-stocks-tracker.onrender.com/health"
